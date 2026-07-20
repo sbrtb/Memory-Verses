@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4307 &mdash; Memory Verses</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,600&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=Cormorant+Garamond:wght@500;600&display=swap');
+
+  :root{
+    --parchment:#f2e9d8;
+    --parchment-dark:#e6d8bb;
+    --ink:#2b2118;
+    --ink-soft:#5a4c3c;
+    --maroon:#6b1420;
+    --maroon-deep:#4a0e17;
+    --gold:#a9822f;
+    --gold-light:#d9b95c;
+    --ribbon:#7c1c2b;
+    --ok:#3f6b3a;
+    --shadow: 0 10px 30px rgba(43,33,24,0.25);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(169,130,47,0.10), transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, rgba(107,20,32,0.08), transparent 55%),
+      var(--parchment);
+    color:var(--ink);
+    font-family:'Source Serif 4', Georgia, serif;
+    min-height:100vh;
+    padding-bottom:80px;
+  }
+  .grain{
+    position:fixed; inset:0; pointer-events:none; opacity:.06; mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    z-index:1000;
+  }
+
+  header{
+    position:relative;
+    padding:48px 20px 30px;
+    text-align:center;
+    border-bottom:1px solid var(--gold);
+    background:linear-gradient(180deg, rgba(230,216,187,0.6), transparent);
+  }
+  .eyebrow{
+    font-family:'Cormorant Garamond', serif;
+    letter-spacing:.35em;
+    text-transform:uppercase;
+    font-size:12px;
+    color:var(--maroon);
+    font-weight:600;
+  }
+  h1{
+    font-family:'Playfair Display', serif;
+    font-weight:900;
+    font-size:clamp(30px, 5vw, 52px);
+    margin:8px 0 6px;
+    color:var(--maroon-deep);
+    letter-spacing:.01em;
+  }
+  header p.sub{
+    font-style:italic;
+    color:var(--ink-soft);
+    max-width:520px;
+    margin:0 auto;
+    font-size:15px;
+  }
+
+  .ribbon-progress{
+    max-width:720px; margin:26px auto 0; padding:0 20px;
+  }
+  .ribbon-track{
+    position:relative;
+    height:14px;
+    border-radius:8px;
+    background:var(--parchment-dark);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,.25);
+    overflow:hidden;
+    border:1px solid rgba(74,14,23,0.2);
+  }
+  .ribbon-fill{
+    position:absolute; left:0; top:0; bottom:0;
+    background:linear-gradient(90deg, var(--ribbon), var(--gold-light));
+    width:0%;
+    transition:width .6s cubic-bezier(.4,0,.2,1);
+  }
+  .ribbon-label{
+    display:flex; justify-content:space-between;
+    font-size:12.5px; color:var(--ink-soft); margin-top:6px;
+    font-family:'Cormorant Garamond', serif; letter-spacing:.04em;
+  }
+  .ribbon-label b{color:var(--maroon-deep);}
+
+  nav.tabs{
+    max-width:960px; margin:34px auto 0; padding:0 20px;
+    display:flex; gap:10px; flex-wrap:wrap; justify-content:center;
+  }
+  .tab-btn{
+    font-family:'Cormorant Garamond', serif;
+    font-weight:600;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    font-size:13px;
+    padding:10px 20px;
+    background:transparent;
+    border:1px solid var(--gold);
+    color:var(--maroon-deep);
+    border-radius:2px;
+    cursor:pointer;
+    transition:all .2s;
+  }
+  .tab-btn:hover{background:rgba(169,130,47,0.12);}
+  .tab-btn.active{
+    background:var(--maroon-deep);
+    color:var(--parchment);
+    border-color:var(--maroon-deep);
+  }
+
+  main{max-width:960px; margin:0 auto; padding:28px 20px 0;}
+
+  .controls{
+    display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+    margin-bottom:22px;
+  }
+  input[type=text], select{
+    font-family:'Source Serif 4', serif;
+    font-size:14px;
+    padding:9px 12px;
+    border:1px solid var(--gold);
+    background:#fbf6ea;
+    color:var(--ink);
+    border-radius:2px;
+  }
+  input[type=text]{flex:1; min-width:180px;}
+  .stat-chip{
+    font-family:'Cormorant Garamond', serif;
+    font-size:13px;
+    color:var(--ink-soft);
+    letter-spacing:.03em;
+  }
+
+  /* Library grid */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(270px,1fr));
+    gap:16px;
+  }
+  .card{
+    background:#fbf6ea;
+    border:1px solid rgba(74,14,23,0.18);
+    border-radius:3px;
+    box-shadow:var(--shadow);
+    padding:18px 20px;
+    position:relative;
+    cursor:pointer;
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .card:hover{transform:translateY(-3px); box-shadow:0 14px 34px rgba(43,33,24,0.3);}
+  .card .ref{
+    font-family:'Playfair Display', serif;
+    font-weight:700;
+    color:var(--maroon-deep);
+    font-size:17px;
+  }
+  .card .title{
+    font-style:italic;
+    color:var(--ink-soft);
+    font-size:13.5px;
+    margin-top:2px;
+  }
+  .seal{
+    position:absolute; top:12px; right:12px;
+    width:26px; height:26px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px;
+    font-family:'Playfair Display', serif;
+    color:#fff;
+    background:radial-gradient(circle at 35% 30%, var(--gold-light), var(--gold) 60%, #7a5c1f 100%);
+    box-shadow:0 2px 4px rgba(0,0,0,.35);
+    opacity:0;
+    transform:scale(.5);
+    transition:all .3s;
+  }
+  .card.mastered .seal{opacity:1; transform:scale(1);}
+  .card .status-text{
+    margin-top:12px;
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    font-family:'Cormorant Garamond', serif;
+    font-weight:600;
+    color:var(--gold);
+  }
+  .card.learning .status-text{color:var(--maroon);}
+  .card.mastered .status-text{color:var(--ok);}
+
+  /* Modal / detail view */
+  .overlay{
+    position:fixed; inset:0; background:rgba(43,33,24,0.55);
+    display:none; align-items:center; justify-content:center; z-index:200; padding:20px;
+  }
+  .overlay.open{display:flex;}
+  .sheet{
+    background:var(--parchment);
+    border:1px solid var(--gold);
+    max-width:560px; width:100%;
+    border-radius:4px;
+    box-shadow:0 30px 60px rgba(0,0,0,.4);
+    padding:34px 30px 28px;
+    position:relative;
+    max-height:88vh; overflow-y:auto;
+  }
+  .sheet .close{
+    position:absolute; top:14px; right:16px;
+    background:none; border:none; font-size:22px; color:var(--ink-soft); cursor:pointer;
+    font-family:'Playfair Display', serif;
+  }
+  .sheet .ref{
+    font-family:'Playfair Display', serif; font-weight:900;
+    color:var(--maroon-deep); font-size:24px;
+  }
+  .sheet .title{font-style:italic; color:var(--ink-soft); margin-top:2px; margin-bottom:18px; font-size:15px;}
+  .sheet .verse-text{
+    font-size:19px; line-height:1.65;
+    color:var(--ink);
+    border-left:3px solid var(--gold);
+    padding-left:16px;
+    margin-bottom:22px;
+    font-family:'Source Serif 4', serif;
+  }
+  .verse-text.hidden-text{filter:blur(7px); user-select:none; transition:filter .3s;}
+  .sheet-actions{display:flex; gap:10px; flex-wrap:wrap;}
+  .btn{
+    font-family:'Cormorant Garamond', serif;
+    font-weight:600; letter-spacing:.05em; text-transform:uppercase; font-size:12.5px;
+    padding:10px 18px;
+    border:1px solid var(--maroon-deep);
+    background:var(--maroon-deep); color:var(--parchment);
+    border-radius:2px; cursor:pointer;
+  }
+  .btn.ghost{background:transparent; color:var(--maroon-deep);}
+  .btn.gold{background:var(--gold); border-color:var(--gold); color:#2b2118;}
+  .btn:active{transform:translateY(1px);}
+
+  /* Practice mode */
+  .practice-wrap{max-width:640px; margin:0 auto;}
+  .practice-card{
+    background:#fbf6ea;
+    border:1px solid var(--gold);
+    border-radius:4px;
+    box-shadow:var(--shadow);
+    padding:34px 30px;
+    text-align:center;
+    min-height:260px;
+    display:flex; flex-direction:column; justify-content:center; align-items:center;
+  }
+  .practice-card .ref{
+    font-family:'Playfair Display', serif; font-weight:900; font-size:26px; color:var(--maroon-deep);
+  }
+  .practice-card .title{font-style:italic; color:var(--ink-soft); margin-top:4px; margin-bottom:20px;}
+  .practice-card .verse-text{font-size:19px; line-height:1.6; border:none; padding:0;}
+  .flip-hint{font-size:12px; color:var(--gold); text-transform:uppercase; letter-spacing:.1em; margin-top:20px; font-family:'Cormorant Garamond',serif;}
+  .practice-nav{display:flex; justify-content:space-between; align-items:center; margin-top:20px; gap:10px;}
+
+  textarea{
+    width:100%; min-height:100px; font-family:'Source Serif 4',serif; font-size:15px;
+    padding:12px; border:1px solid var(--gold); background:#fff; color:var(--ink);
+    border-radius:2px; resize:vertical;
+  }
+  .result-box{
+    margin-top:16px; padding:14px 16px; border-radius:3px; font-size:14px; line-height:1.55;
+    text-align:left; display:none;
+  }
+  .result-box.show{display:block;}
+  .result-box.correct{background:rgba(63,107,58,0.12); border:1px solid var(--ok); color:#2c4a29;}
+  .result-box.close{background:rgba(169,130,47,0.15); border:1px solid var(--gold); color:#6b501c;}
+  .result-box.wrong{background:rgba(107,20,32,0.10); border:1px solid var(--maroon); color:var(--maroon-deep);}
+  mark.miss{background:rgba(107,20,32,0.25); color:var(--maroon-deep); padding:0 2px; border-radius:2px;}
+
+  .blank{
+    display:inline-block; min-width:60px; border-bottom:2px solid var(--maroon);
+    color:transparent;
+  }
+  .blank.revealed{color:var(--maroon-deep); font-weight:600;}
+
+  footer{
+    text-align:center; padding:40px 20px 10px; color:var(--ink-soft); font-size:12px;
+    font-family:'Cormorant Garamond', serif; letter-spacing:.05em;
+  }
+
+  .empty{
+    text-align:center; padding:60px 20px; color:var(--ink-soft); font-style:italic;
+  }
+
+  @media (max-width:520px){
+    .sheet{padding:26px 18px 22px;}
+    .practice-card{padding:24px 18px;}
+  }
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<header>
+  <div class="eyebrow">A Topical Treasury</div>
+  <h1>4307 Memory Verses</h1>
+  <p class="sub">Selected from each of the sixty-six books of the Bible &mdash; King James Version</p>
+  <div class="ribbon-progress">
+    <div class="ribbon-track"><div class="ribbon-fill" id="ribbonFill"></div></div>
+    <div class="ribbon-label">
+      <span><b id="masteredCount">0</b> mastered of 66</span>
+      <span><b id="learningCount">0</b> in progress</span>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="library">Library</button>
+  <button class="tab-btn" data-tab="practice">Practice</button>
+  <button class="tab-btn" data-tab="type">Type It Out</button>
+</nav>
+
+<main>
+
+  <section id="view-library">
+    <div class="controls">
+      <input type="text" id="search" placeholder="Search by book, reference, or theme&hellip;">
+      <select id="filterStatus">
+        <option value="all">All verses</option>
+        <option value="new">Not started</option>
+        <option value="learning">In progress</option>
+        <option value="mastered">Mastered</option>
+      </select>
+    </div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section id="view-practice" style="display:none;">
+    <div class="practice-wrap">
+      <div class="practice-card" id="practiceCard">
+        <div class="ref" id="pRef"></div>
+        <div class="title" id="pTitle"></div>
+        <div class="verse-text" id="pText"></div>
+        <div class="flip-hint" id="pHint">Tap the card to reveal the verse</div>
+      </div>
+      <div class="practice-nav">
+        <button class="btn ghost" id="pMarkLearning">Still learning</button>
+        <span class="stat-chip" id="pCounter"></span>
+        <button class="btn gold" id="pMarkMastered">I know it &#10003;</button>
+      </div>
+      <div class="practice-nav" style="justify-content:center; gap:20px; margin-top:10px;">
+        <button class="btn ghost" id="pPrev">&larr; Previous</button>
+        <button class="btn ghost" id="pNext">Next &rarr;</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-type" style="display:none;">
+    <div class="practice-wrap">
+      <div class="practice-card" style="min-height:auto;">
+        <div class="ref" id="tRef"></div>
+        <div class="title" id="tTitle"></div>
+        <textarea id="tInput" placeholder="Type the verse from memory, King James Version&hellip;"></textarea>
+        <div style="display:flex; gap:10px; margin-top:14px;">
+          <button class="btn" id="tCheck">Check my answer</button>
+          <button class="btn ghost" id="tSkip">Skip &rarr;</button>
+        </div>
+        <div class="result-box" id="tResult"></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div class="overlay" id="overlay">
+  <div class="sheet">
+    <button class="close" id="sheetClose">&times;</button>
+    <div class="ref" id="sRef"></div>
+    <div class="title" id="sTitle"></div>
+    <div class="verse-text hidden-text" id="sText"></div>
+    <div class="sheet-actions">
+      <button class="btn ghost" id="sReveal">Reveal verse</button>
+      <button class="btn ghost" id="sLearning">Mark: still learning</button>
+      <button class="btn gold" id="sMastered">Mark: mastered</button>
+    </div>
+  </div>
+</div>
+
+<footer>Text: King James Version (public domain) &middot; Progress is stored only in this browser</footer>
+
+<script>
+/* ---------- Data: 66 verses, one from each book ---------- */
+const VERSES = [
+{ref:"Genesis 3:15", title:"First messianic promise", text:"And I will put enmity between thee and the woman, and between thy seed and her seed; it shall bruise thy head, and thou shalt bruise his heel."},
+{ref:"Exodus 12:13", title:"Obedience leads to life", text:"And the blood shall be to you for a token upon the houses where ye are: and when I see the blood, I will pass over you, and the plague shall not be upon you to destroy you, when I smite the land of Egypt."},
+{ref:"Leviticus 25:10", title:"The year of jubilee", text:"And ye shall hallow the fiftieth year, and proclaim liberty throughout all the land unto all the inhabitants thereof: it shall be a jubile unto you; and ye shall return every man unto his possession, and ye shall return every man unto his family."},
+{ref:"Numbers 9:17", title:"The nation of Israel's guide", text:"And when the cloud was taken up from the tabernacle, then after that the children of Israel journeyed: and in the place where the cloud abode, there the children of Israel pitched their tents."},
+{ref:"Deuteronomy 29:29", title:"The secret things", text:"The secret things belong unto the LORD our God: but those things which are revealed belong unto us and to our children for ever, that we may do all the words of this law."},
+{ref:"Joshua 1:8", title:"The path of success", text:"This book of the law shall not depart out of thy mouth; but thou shalt meditate therein day and night, that thou mayest observe to do according to all that is written therein: for then thou shalt make thy way prosperous, and then thou shalt have good success."},
+{ref:"Judges 16:20", title:"The lost power", text:"And she said, The Philistines be upon thee, Samson. And he awoke out of his sleep, and said, I will go out as at other times before, and shake myself. And he wist not that the LORD was departed from him."},
+{ref:"Ruth 1:16", title:"A shining example of faithfulness", text:"And Ruth said, Intreat me not to leave thee, or to return from following after thee: for whither thou goest, I will go; and where thou lodgest, I will lodge: thy people shall be my people, and thy God my God."},
+{ref:"1 Samuel 15:22", title:"The indispensable virtue", text:"And Samuel said, Hath the LORD as great delight in burnt offerings and sacrifices, as in obeying the voice of the LORD? Behold, to obey is better than sacrifice, and to hearken than the fat of rams."},
+{ref:"2 Samuel 18:33", title:"The father's lament", text:"And the king was much moved, and went up to the chamber over the gate, and wept: and as he went, thus he said, O my son Absalom, my son, my son Absalom! would God I had died for thee, O Absalom, my son, my son!"},
+{ref:"1 Kings 3:9", title:"The prayer for wisdom", text:"Give therefore thy servant an understanding heart to judge thy people, that I may discern between good and bad: for who is able to judge this thy so great a people?"},
+{ref:"2 Kings 6:17", title:"The divine reinforcements", text:"And Elisha prayed, and said, LORD, I pray thee, open his eyes, that he may see. And the LORD opened the eyes of the young man; and he saw: and, behold, the mountain was full of horses and chariots of fire round about Elisha."},
+{ref:"1 Chronicles 4:10", title:"A wonderful prayer in dark surroundings", text:"And Jabez called on the God of Israel, saying, Oh that thou wouldest bless me indeed, and enlarge my coast, and that thine hand might be with me, and that thou wouldest keep me from evil, that it may not grieve me! And God granted him that which he requested."},
+{ref:"2 Chronicles 16:9", title:"God's all-seeing eye", text:"For the eyes of the LORD run to and fro throughout the whole earth, to shew himself strong in the behalf of them whose heart is perfect toward him. Herein thou hast done foolishly: therefore from henceforth thou shalt have wars."},
+{ref:"Ezra 7:10", title:"The faithful scribe", text:"For Ezra had prepared his heart to seek the law of the LORD, and to do it, and to teach in Israel statutes and judgments."},
+{ref:"Nehemiah 4:17", title:"A true labor union", text:"They which builded on the wall, and they that bare burdens, with those that laded, every one with one of his hands wrought in the work, and with the other hand held a weapon."},
+{ref:"Esther 4:14", title:"The right woman for an emergency", text:"For if thou altogether holdest thy peace at this time, then shall there enlargement and deliverance arise to the Jews from another place; but thou and thy father's house shall be destroyed: and who knoweth whether thou art come to the kingdom for such a time as this?"},
+{ref:"Job 42:10", title:"An enriching prayer", text:"And the LORD turned the captivity of Job, when he prayed for his friends: also the LORD gave Job twice as much as he had before."},
+{ref:"Psalm 84:11", title:"The matchless Giver", text:"For the LORD God is a sun and shield: the LORD will give grace and glory: no good thing will he withhold from them that walk uprightly."},
+{ref:"Proverbs 3:15", title:"The precious possession", text:"She is more precious than rubies: and all the things thou canst desire are not to be compared unto her."},
+{ref:"Ecclesiastes 12:13", title:"The great conclusion", text:"Let us hear the conclusion of the whole matter: Fear God, and keep his commandments: for this is the whole duty of man."},
+{ref:"Song of Solomon 1:6", title:"The vineyard keeper", text:"Look not upon me, because I am black, because the sun hath looked upon me: my mother's children were angry with me; they made me the keeper of the vineyards; but mine own vineyard have I not kept."},
+{ref:"Isaiah 9:6", title:"The most wonderful child", text:"For unto us a child is born, unto us a son is given: and the government shall be upon his shoulder: and his name shall be called Wonderful, Counsellor, The mighty God, The everlasting Father, The Prince of Peace."},
+{ref:"Jeremiah 29:13", title:"The greatest discovery", text:"And ye shall seek me, and find me, when ye shall search for me with all your heart."},
+{ref:"Lamentations 3:22", title:"God's unfailing mercies", text:"It is of the LORD's mercies that we are not consumed, because his compassions fail not."},
+{ref:"Ezekiel 33:32", title:"The inauthentic hearers", text:"And, lo, thou art unto them as a very lovely song of one that hath a pleasant voice, and can play well on an instrument: for they hear thy words, but they do them not."},
+{ref:"Daniel 6:10", title:"The unchangeable habit of prayer", text:"Now when Daniel knew that the writing was signed, he went into his house; and his windows being open in his chamber toward Jerusalem, he kneeled upon his knees three times a day, and prayed, and gave thanks before his God, as he did aforetime."},
+{ref:"Hosea 6:3", title:"The road to divine blessing", text:"Then shall we know, if we follow on to know the LORD: his going forth is prepared as the morning; and he shall come unto us as the rain, as the latter and former rain unto the earth."},
+{ref:"Joel 2:28", title:"The outpouring of the Spirit", text:"And it shall come to pass afterward, that I will pour out my spirit upon all flesh; and your sons and your daughters shall prophesy, your old men shall dream dreams, your young men shall see visions."},
+{ref:"Amos 8:11", title:"The spiritual famine", text:"Behold, the days come, saith the Lord GOD, that I will send a famine in the land, not a famine of bread, nor a thirst for water, but of hearing the words of the LORD."},
+{ref:"Obadiah 4", title:"The humbling of the proud", text:"Though thou exalt thyself as the eagle, and though thou set thy nest among the stars, thence will I bring thee down, saith the LORD."},
+{ref:"Jonah 1:3", title:"An expensive journey", text:"But Jonah rose up to flee unto Tarshish from the presence of the LORD, and went down to Joppa; and he found a ship going to Tarshish: so he paid the fare thereof, and went down into it, to go with them unto Tarshish from the presence of the LORD."},
+{ref:"Micah 6:8", title:"Authentic religion", text:"He hath shewed thee, O man, what is good; and what doth the LORD require of thee, but to do justly, and to love mercy, and to walk humbly with thy God?"},
+{ref:"Nahum 2:2", title:"God will restore", text:"For the LORD hath turned away the excellency of Jacob, as the excellency of Israel: for the emptiers have emptied them out, and marred their vine branches."},
+{ref:"Habakkuk 2:14", title:"World-wide missions", text:"For the earth shall be filled with the knowledge of the glory of the LORD, as the waters cover the sea."},
+{ref:"Zephaniah 2:3", title:"Seeking the Lord", text:"Seek ye the LORD, all ye meek of the earth, which have wrought his judgment; seek righteousness, seek meekness: it may be ye shall be hid in the day of the LORD's anger."},
+{ref:"Haggai 2:4", title:"A ringing call to duty", text:"Yet now be strong, O Zerubbabel, saith the LORD; and be strong, O Joshua, son of Josedech, the high priest; and be strong, all ye people of the land, saith the LORD, and work: for I am with you, saith the LORD of hosts."},
+{ref:"Zechariah 4:6", title:"The true means of accomplishment", text:"Then he answered and spake unto me, saying, This is the word of the LORD unto Zerubbabel, saying, Not by might, nor by power, but by my spirit, saith the LORD of hosts."},
+{ref:"Malachi 3:10", title:"The tither's promise", text:"Bring ye all the tithes into the storehouse, that there may be meat in mine house, and prove me now herewith, saith the LORD of hosts, if I will not open you the windows of heaven, and pour you out a blessing, that there shall not be room enough to receive it."},
+{ref:"Matthew 7:7", title:"The three-fold promise", text:"Ask, and it shall be given you; seek, and ye shall find; knock, and it shall be opened unto you."},
+{ref:"Mark 16:15", title:"The great commission", text:"And he said unto them, Go ye into all the world, and preach the gospel to every creature."},
+{ref:"Luke 10:20", title:"The real reason for joy", text:"Notwithstanding in this rejoice not, that the spirits are subject unto you; but rather rejoice, because your names are written in heaven."},
+{ref:"John 15:7", title:"The master-key of prayer", text:"If ye abide in me, and my words abide in you, ye shall ask what ye will, and it shall be done unto you."},
+{ref:"Acts 1:8", title:"The watchword of the spiritual campaign", text:"But ye shall receive power, after that the Holy Ghost is come upon you: and ye shall be witnesses unto me both in Jerusalem, and in all Judaea, and in Samaria, and unto the uttermost part of the earth."},
+{ref:"Romans 10:9", title:"The promise of salvation", text:"That if thou shalt confess with thy mouth the Lord Jesus, and shalt believe in thine heart that God hath raised him from the dead, thou shalt be saved."},
+{ref:"1 Corinthians 3:11", title:"The only foundation", text:"For other foundation can no man lay than that is laid, which is Jesus Christ."},
+{ref:"2 Corinthians 4:6", title:"The illuminated heart", text:"For God, who commanded the light to shine out of darkness, hath shined in our hearts, to give the light of the knowledge of the glory of God in the face of Jesus Christ."},
+{ref:"Galatians 2:20", title:"Dying to live", text:"I am crucified with Christ: nevertheless I live; yet not I, but Christ liveth in me: and the life which I now live in the flesh I live by the faith of the Son of God, who loved me, and gave himself for me."},
+{ref:"Ephesians 4:13", title:"The highest development", text:"Till we all come in the unity of the faith, and of the knowledge of the Son of God, unto a perfect man, unto the measure of the stature of the fulness of Christ."},
+{ref:"Philippians 2:5", title:"The mind of Christ", text:"Let this mind be in you, which was also in Christ Jesus."},
+{ref:"Colossians 3:1", title:"The heavenly ambition", text:"If ye then be risen with Christ, seek those things which are above, where Christ sitteth on the right hand of God."},
+{ref:"1 Thessalonians 5:23", title:"Sanctification", text:"And the very God of peace sanctify you wholly; and I pray God your whole spirit and soul and body be preserved blameless unto the coming of our Lord Jesus Christ."},
+{ref:"2 Thessalonians 3:10", title:"The duty to work", text:"For even when we were with you, this we commanded you, that if any would not work, neither should he eat."},
+{ref:"1 Timothy 4:12", title:"The young man's example", text:"Let no man despise thy youth; but be thou an example of the believers, in word, in conversation, in charity, in spirit, in faith, in purity."},
+{ref:"2 Timothy 2:4", title:"The soldier's difference", text:"No man that warreth entangleth himself with the affairs of this life; that he may please him who hath chosen him to be a soldier."},
+{ref:"Titus 2:14", title:"The Redeemer's purpose", text:"Who gave himself for us, that he might redeem us from all iniquity, and purify unto himself a peculiar people, zealous of good works."},
+{ref:"Philemon 15", title:"A tender appeal", text:"For perhaps he therefore departed for a season, that thou shouldest receive him for ever."},
+{ref:"Hebrews 11:13", title:"The pilgrims' vision", text:"These all died in faith, not having received the promises, but having seen them afar off, and were persuaded of them, and embraced them, and confessed that they were strangers and pilgrims on the earth."},
+{ref:"James 5:20", title:"The soul-winner's achievement", text:"Let him know, that he which converteth the sinner from the error of his way shall save a soul from death, and shall hide a multitude of sins."},
+{ref:"1 Peter 1:18-19", title:"The cost of redemption", text:"Forasmuch as ye know that ye were not redeemed with corruptible things, as silver and gold, from your vain conversation received by tradition from your fathers; But with the precious blood of Christ, as of a lamb without blemish and without spot."},
+{ref:"2 Peter 1:21", title:"The origins of prophecy", text:"For the prophecy came not in old time by the will of man: but holy men of God spake as they were moved by the Holy Ghost."},
+{ref:"1 John 3:2", title:"The sons of God", text:"Beloved, now are we the sons of God, and it doth not yet appear what we shall be: but we know that, when he shall appear, we shall be like him; for we shall see him as he is."},
+{ref:"2 John 6", title:"Love and obedience", text:"And this is love, that we walk after his commandments. This is the commandment, That, as ye have heard from the beginning, ye should walk in it."},
+{ref:"3 John 4", title:"The minister's joy", text:"I have no greater joy than to hear that my children walk in truth."},
+{ref:"Jude 24-25", title:"The divine keeper", text:"Now unto him that is able to keep you from falling, and to present you faultless before the presence of his glory with exceeding joy, To the only wise God our Saviour, be glory and majesty, dominion and power, both now and ever. Amen."},
+{ref:"Revelation 11:15", title:"The consummation of the divine plan", text:"And the seventh angel sounded; and there were great voices in heaven, saying, The kingdoms of this world are become the kingdoms of our Lord, and of his Christ; and he shall reign for ever and ever."}
+];
+
+VERSES.forEach((v,i)=>v.id="v"+i);
+
+/* ---------- Storage ---------- */
+const STORE_KEY = "memoryVerses_4307_progress";
+function loadProgress(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  }catch(e){ return {}; }
+}
+function saveProgress(p){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(p)); }catch(e){}
+}
+let progress = loadProgress(); // {id: "new"|"learning"|"mastered"}
+
+function statusOf(id){ return progress[id] || "new"; }
+function setStatus(id, status){
+  progress[id] = status;
+  saveProgress(progress);
+  renderStats();
+}
+
+/* ---------- Stats & progress ribbon ---------- */
+function renderStats(){
+  let mastered=0, learning=0;
+  VERSES.forEach(v=>{
+    const s = statusOf(v.id);
+    if(s==="mastered") mastered++;
+    else if(s==="learning") learning++;
+  });
+  document.getElementById("masteredCount").textContent = mastered;
+  document.getElementById("learningCount").textContent = learning;
+  document.getElementById("ribbonFill").style.width = (mastered/VERSES.length*100).toFixed(1)+"%";
+  renderLibrary();
+}
+
+/* ---------- Tabs ---------- */
+const tabs = document.querySelectorAll(".tab-btn");
+const views = { library: document.getElementById("view-library"), practice: document.getElementById("view-practice"), type: document.getElementById("view-type") };
+tabs.forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    tabs.forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    Object.values(views).forEach(v=>v.style.display="none");
+    views[btn.dataset.tab].style.display="block";
+    if(btn.dataset.tab==="practice") showPracticeCard();
+    if(btn.dataset.tab==="type") showTypeCard();
+  });
+});
+
+/* ---------- Library rendering ---------- */
+const grid = document.getElementById("grid");
+const searchInput = document.getElementById("search");
+const filterSelect = document.getElementById("filterStatus");
+
+function renderLibrary(){
+  const q = searchInput.value.trim().toLowerCase();
+  const f = filterSelect.value;
+  grid.innerHTML = "";
+  const filtered = VERSES.filter(v=>{
+    const s = statusOf(v.id);
+    if(f!=="all" && s!==f) return false;
+    if(q && !(v.ref.toLowerCase().includes(q) || v.title.toLowerCase().includes(q))) return false;
+    return true;
+  });
+  if(filtered.length===0){
+    grid.innerHTML = '<div class="empty">No verses match your search.</div>';
+    return;
+  }
+  filtered.forEach(v=>{
+    const s = statusOf(v.id);
+    const card = document.createElement("div");
+    card.className = "card "+s;
+    card.innerHTML = `
+      <div class="seal">&#10003;</div>
+      <div class="ref">${v.ref}</div>
+      <div class="title">${v.title}</div>
+      <div class="status-text">${s==="new"?"Not started":s==="learning"?"Learning":"Mastered"}</div>
+    `;
+    card.addEventListener("click", ()=>openSheet(v.id));
+    grid.appendChild(card);
+  });
+}
+searchInput.addEventListener("input", renderLibrary);
+filterSelect.addEventListener("change", renderLibrary);
+
+/* ---------- Detail sheet ---------- */
+const overlay = document.getElementById("overlay");
+let currentSheetId = null;
+function openSheet(id){
+  currentSheetId = id;
+  const v = VERSES.find(x=>x.id===id);
+  document.getElementById("sRef").textContent = v.ref;
+  document.getElementById("sTitle").textContent = v.title;
+  const textEl = document.getElementById("sText");
+  textEl.textContent = v.text;
+  textEl.classList.add("hidden-text");
+  document.getElementById("sReveal").textContent = "Reveal verse";
+  overlay.classList.add("open");
+}
+document.getElementById("sheetClose").addEventListener("click", ()=>overlay.classList.remove("open"));
+overlay.addEventListener("click", (e)=>{ if(e.target===overlay) overlay.classList.remove("open"); });
+document.getElementById("sReveal").addEventListener("click", ()=>{
+  const textEl = document.getElementById("sText");
+  const revealed = !textEl.classList.contains("hidden-text");
+  if(revealed){ textEl.classList.add("hidden-text"); document.getElementById("sReveal").textContent="Reveal verse"; }
+  else { textEl.classList.remove("hidden-text"); document.getElementById("sReveal").textContent="Hide verse"; }
+});
+document.getElementById("sLearning").addEventListener("click", ()=>{
+  setStatus(currentSheetId,"learning");
+  document.querySelector(`.card`); // no-op, stats re-render handles it
+});
+document.getElementById("sMastered").addEventListener("click", ()=>{
+  setStatus(currentSheetId,"mastered");
+});
+
+/* ---------- Practice (flashcard) mode ---------- */
+let practiceOrder = [];
+let practiceIndex = 0;
+let practiceRevealed = false;
+
+function buildPracticeOrder(){
+  practiceOrder = VERSES.map(v=>v.id).sort(()=>Math.random()-0.5);
+  practiceIndex = 0;
+}
+buildPracticeOrder();
+
+function showPracticeCard(){
+  if(practiceOrder.length===0) buildPracticeOrder();
+  const v = VERSES.find(x=>x.id===practiceOrder[practiceIndex]);
+  document.getElementById("pRef").textContent = v.ref;
+  document.getElementById("pTitle").textContent = v.title;
+  document.getElementById("pText").textContent = "";
+  document.getElementById("pHint").style.display = "block";
+  practiceRevealed = false;
+  document.getElementById("pCounter").textContent = (practiceIndex+1)+" / "+practiceOrder.length;
+  window._currentPracticeVerse = v;
+}
+document.getElementById("practiceCard").addEventListener("click", ()=>{
+  const v = window._currentPracticeVerse;
+  const textEl = document.getElementById("pText");
+  practiceRevealed = !practiceRevealed;
+  if(practiceRevealed){
+    textEl.textContent = v.text;
+    document.getElementById("pHint").style.display="none";
+  } else {
+    textEl.textContent = "";
+    document.getElementById("pHint").style.display="block";
+  }
+});
+document.getElementById("pNext").addEventListener("click", ()=>{
+  practiceIndex = (practiceIndex+1) % practiceOrder.length;
+  showPracticeCard();
+});
+document.getElementById("pPrev").addEventListener("click", ()=>{
+  practiceIndex = (practiceIndex-1+practiceOrder.length) % practiceOrder.length;
+  showPracticeCard();
+});
+document.getElementById("pMarkLearning").addEventListener("click", ()=>{
+  setStatus(window._currentPracticeVerse.id, "learning");
+  document.getElementById("pNext").click();
+});
+document.getElementById("pMarkMastered").addEventListener("click", ()=>{
+  setStatus(window._currentPracticeVerse.id, "mastered");
+  document.getElementById("pNext").click();
+});
+
+/* ---------- Type it out mode ---------- */
+let typeOrder = [];
+let typeIndex = 0;
+function buildTypeOrder(){
+  typeOrder = VERSES.map(v=>v.id).sort(()=>Math.random()-0.5);
+  typeIndex = 0;
+}
+buildTypeOrder();
+
+function showTypeCard(){
+  if(typeOrder.length===0) buildTypeOrder();
+  const v = VERSES.find(x=>x.id===typeOrder[typeIndex]);
+  document.getElementById("tRef").textContent = v.ref;
+  document.getElementById("tTitle").textContent = v.title;
+  document.getElementById("tInput").value = "";
+  const r = document.getElementById("tResult");
+  r.className = "result-box";
+  r.innerHTML = "";
+  window._currentTypeVerse = v;
+}
+
+function normalize(str){
+  return str.toLowerCase().replace(/[^\w\s]|_/g,"").replace(/\s+/g," ").trim();
+}
+
+document.getElementById("tCheck").addEventListener("click", ()=>{
+  const v = window._currentTypeVerse;
+  const userRaw = document.getElementById("tInput").value;
+  const user = normalize(userRaw);
+  const target = normalize(v.text);
+  const r = document.getElementById("tResult");
+
+  if(user.length===0){
+    r.className = "result-box show wrong";
+    r.textContent = "Type the verse first, then check your answer.";
+    return;
+  }
+
+  const userWords = user.split(" ");
+  const targetWords = target.split(" ");
+  let matches = 0;
+  const len = Math.max(userWords.length, targetWords.length);
+  for(let i=0;i<Math.min(userWords.length, targetWords.length); i++){
+    if(userWords[i]===targetWords[i]) matches++;
+  }
+  const accuracy = targetWords.length ? matches/targetWords.length : 0;
+
+  if(accuracy >= 0.97){
+    r.className = "result-box show correct";
+    r.innerHTML = "<b>Well done &mdash; word perfect (or nearly so).</b><br>"+v.text;
+    setStatus(v.id, "mastered");
+  } else if(accuracy >= 0.7){
+    r.className = "result-box show close";
+    r.innerHTML = "<b>Close! Compare carefully:</b><br>"+v.text;
+    setStatus(v.id, "learning");
+  } else {
+    r.className = "result-box show wrong";
+    r.innerHTML = "<b>Keep practicing. The verse reads:</b><br>"+v.text;
+    setStatus(v.id, "learning");
+  }
+});
+
+document.getElementById("tSkip").addEventListener("click", ()=>{
+  typeIndex = (typeIndex+1) % typeOrder.length;
+  showTypeCard();
+});
+
+/* ---------- Init ---------- */
+renderStats();
+</script>
+</body>
+</html>
